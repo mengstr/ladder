@@ -1,6 +1,8 @@
 package main
 
-import "errors"
+import (
+  "errors"
+)
 
 // p - The place where the lad starts.
 // V - Der Dispenser. Der Rocks roll out of it to squash you flat.
@@ -34,11 +36,11 @@ var levels = []struct {
       "       =========H==========H=========  =======================                 ",
       "                H                                                              ",
       "                H                                                              ",
-      "                H                                        H                     ",
+      "     p          H                                        H                     ",
       "======================== ====================== =========H==============       ",
       "                                                         H                     ",
       "                                                         H                     ",
-      "*    p                                                   H                    *",
+      "*    P                                                   H                    *",
       "===============================================================================",
     },
   },
@@ -194,58 +196,49 @@ var levels = []struct {
   },
 }
 
-type Coords struct {
-  x int
-  y int
-}
-
 type MapData struct {
-  lad           Coords
-  dispensers    []Coords
-  ladsRemaining int
-  level         int
-  score         int
-  bonustime     int
-  field         [20][79]byte
+  Field         [20][79]byte
+  LadsRemaining int
+  Level         int
+  Score         int
+  Bonustime     int
 }
 
 //
 //
-func loadMap(n int) (MapData, error) {
-  if n > len(levels) {
-    return MapData{}, errors.New("Level out of range")
-  }
-  var i, j int
+func LoadMap(n int) (MapData, Actor, []Actor, error) {
+  var x, y int
   var m MapData
+  var lad Actor
+  var dispensers []Actor
 
-  for i = 0; i < 20; i++ {
-    for j = 0; j < 79; j++ {
-      m.field[i][j] = '.'
+  if n > len(levels) {
+    return m, lad, dispensers, errors.New("Level out of range")
+  }
+
+  // Prepare the field to be loaded with a new level
+  for y = 0; y < 20; y++ {
+    for x = 0; x < 79; x++ {
+      m.Field[y][x] = ' '
     }
   }
 
-  for i = 0; i < len(levels[n].layout); i++ {
-    //    fmt.Println(levels[n].layout[i])
-    for j = 0; j < len(levels[n].layout[i]); j++ {
-      switch levels[n].layout[i][j] {
+  for y = 0; y < len(levels[n].layout); y++ {
+    for x = 0; x < len(levels[n].layout[y]); x++ {
+      switch levels[n].layout[y][x] {
       case 'p':
-        m.field[i][j] = 'p'
-        m.lad = Coords{i, j}
+        // The lad will be put there by the rendered, so no need to have it on the map
+        lad = Actor{Type: 1, Y: y, X: x, Ch: 'g', Dir: STOPPED, DirRequest: STOPPED}
       case 'V':
-        m.field[i][j] = 'V'
-        m.dispensers = append(m.dispensers, Coords{i, j})
+        m.Field[y][x] = 'V'
+        dispensers = append(dispensers, Actor{Type: 2, Y: y, X: x})
       case '.': // TODO - handle the rubber balls
-        m.field[i][j] = '.'
+        m.Field[y][x] = '.'
       default:
-        m.field[i][j] = levels[n].layout[i][j]
+        m.Field[y][x] = levels[n].layout[y][x]
       }
     }
   }
 
-  return m, nil
+  return m, lad, dispensers, nil
 }
-
-// p - The place where the lad starts.
-// V - Der Dispenser. Der Rocks roll out of it to squash you flat.
-// * - Der Eaters. They eat the Der Rocks but oddly do not harm you in the slightest
-// . - Rubber Ball. It's very bouncy. This difference is, it bounces you.
