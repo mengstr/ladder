@@ -27,107 +27,77 @@ const (
 //
 //
 func MoveActor(a Actor, m MapData) Actor {
-	// If stopped and no request to move then just exit
-	if a.Dir == STOPPED && a.DirRequest == STOPPED {
-		return a
-	}
 
-	// If stopped and requst to do something, then try to do it
-	if a.Dir == STOPPED && a.DirRequest != STOPPED {
+loopAgain: // If just started falling we need to retest all conditions
+
+	// If stopped or going left or going right and requst to do something else, then try to do it
+	if (a.Dir == STOPPED && a.DirRequest != STOPPED) ||
+		(a.Dir == LEFT && a.DirRequest == RIGHT) ||
+		(a.Dir == RIGHT && a.DirRequest == LEFT) {
 		a.Dir = a.DirRequest
 		a.DirRequest = STOPPED
 	}
 
-	// If going LEFT and RIGHT is requested
-	if a.Dir == LEFT && a.DirRequest == RIGHT {
-		a.Dir = a.DirRequest
-		a.DirRequest = STOPPED
-	}
-
-	// If going RIGHT and LEFT is requested
-	if a.Dir == RIGHT && a.DirRequest == LEFT {
-		a.Dir = a.DirRequest
-		a.DirRequest = STOPPED
-	}
-
-	// If moving to the left at edge then stop and exit
-	if a.Dir == LEFT && a.X == 0 {
+	// If at the edige of the playfield stop and exit
+	if (a.Dir == LEFT && a.X == 0) ||
+		(a.Dir == RIGHT && a.X >= 78) {
 		a.Dir = STOPPED
-		return a
 	}
 
-	// If falling then continue doing that until not in free space anymore
+	// If at a ladder and want to go up
+	if (a.DirRequest == UP && m.Field[a.Y][a.X] == 'H') ||
+		(a.DirRequest == DOWN && m.Field[a.Y][a.X] == 'H') {
+		a.Dir = a.DirRequest
+		a.DirRequest = STOPPED
+	}
+
+	// If falling then continue doing that until not in free space anymore,
+	// then continue the previous direction (if any)
 	if a.Dir == FALLING {
 		if m.Field[a.Y+1][a.X] == ' ' {
 			a.Y++
 			return a
 		}
-		a.Dir = STOPPED
-		return a
-	}
-
-	// If at a ladder and want to go up
-	if a.DirRequest == UP && m.Field[a.Y][a.X] == 'H' {
 		a.Dir = a.DirRequest
-		a.DirRequest = STOPPED
-		a.Y--
-		return a
-	}
-
-	// If at a ladder and want to go down
-	if a.DirRequest == DOWN && m.Field[a.Y][a.X] == 'H' {
-		a.Dir = a.DirRequest
-		a.DirRequest = STOPPED
-		a.Y++
-		return a
 	}
 
 	// Climb up until ladder is no more
 	if a.Dir == UP {
 		if m.Field[a.Y-1][a.X] == 'H' {
 			a.Y--
-			return a
+		} else {
+			a.Dir = STOPPED
 		}
-		a.Dir = STOPPED
-		return a
 	}
 
-	// Climb up until ladder is no more
+	// Climb down until ladder is no more
 	if a.Dir == DOWN {
 		if m.Field[a.Y+1][a.X] == 'H' {
 			a.Y++
-			return a
+		} else {
+			a.Dir = STOPPED
 		}
-		a.Dir = STOPPED
-		return a
 	}
 
 	if a.Dir == LEFT && (m.Field[a.Y][a.X] == ' ' || m.Field[a.Y][a.X] == 'H' || m.Field[a.Y][a.X] == '*') {
+		// Stepped out into the void?, the start falling, but remember the previous direction
 		if m.Field[a.Y+1][a.X] == ' ' {
+			a.DirRequest = a.Dir
 			a.Dir = FALLING
-			a.Y++
-			return a
+			goto loopAgain
 		}
 		a.X--
-		return a
-	}
-
-	// If moving to the right at edge then stop and exit
-	if a.Dir == RIGHT && a.X >= 78 {
-		a.Dir = STOPPED
-		return a
 	}
 
 	if a.Dir == RIGHT && (m.Field[a.Y][a.X] == ' ' || m.Field[a.Y][a.X] == 'H' || m.Field[a.Y][a.X] == '*') {
+		// Stepped out into the void?, the start falling, but remember the previous direction
 		if m.Field[a.Y+1][a.X] == ' ' {
+			a.DirRequest = a.Dir
 			a.Dir = FALLING
-			a.Y++
-			return a
+			goto loopAgain
 		}
 		a.X++
-		return a
 	}
 
 	return a
-
 }
