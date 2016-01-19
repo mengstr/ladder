@@ -1,6 +1,7 @@
 # Editor backup files
 *~
 *.bak
+*.sublime-workspace
 
 # Private files and notes
 private/
