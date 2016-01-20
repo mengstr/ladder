@@ -58,6 +58,7 @@ func main() {
 
 gameloop:
 	for {
+		drawStatusline()
 		select {
 		case <-ticker.C:
 			lad.Ch = '@'
@@ -148,7 +149,8 @@ func drawMap() {
 //
 func drawStatusline() {
 	//	Lads    5     Level    1     Score     000                 Bonus time    3400
-	status := fmt.Sprintf("Lads   %2d     Level   %2d     Score    %04d                 Bonus time    %4d", m.LadsRemaining, m.Level, m.Score, m.Bonustime)
+	//	status := fmt.Sprintf("Lads   %2d     Level   %2d     Score    %04d                 Bonus time    %4d", m.LadsRemaining, m.Level, m.Score, m.Bonustime)
+	status := fmt.Sprintf("Dir=%s, DirRequest=%s      ", lad.Dir, lad.DirRequest)
 	printXY(0, 20, termbox.ColorDefault, termbox.ColorDefault, status)
 }
 
