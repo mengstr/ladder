@@ -1,2 +1,8 @@
 # Ladder - a text-based arcade game
-### The classic "ladder" game from the CP/M era of the late 70's are now back in golang
+
+#### This is a reimplementation in golang of the classic 1982 CP/M game "Ladder" original written by Yahoo Software.
+
+### _Please note that this is a work still in progress..._
+
+
+<img src=https://raw.githubusercontent.com/SmallRoomLabs/ladder/master/images/GameRunning1.png width=800 />
