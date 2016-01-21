@@ -125,11 +125,8 @@ loopAgain: // If just started falling we need to retest all conditions
 		}
 	}
 
-	// If at the edige of the playfield stop and exit
-	if (a.Dir == LEFT && a.X == 0) ||
-		(a.Dir == RIGHT && a.X >= 78) {
-		a.Dir = STOPPED
-	}
+	// Don't allow player to end up outside of the playfeild
+	ClampToPlayfield(&a)
 
 	// If at a ladder and want to go up
 	if (a.DirRequest == UP && m.Field[a.Y][a.X] == 'H') ||
@@ -186,5 +183,27 @@ loopAgain: // If just started falling we need to retest all conditions
 		a.X++
 	}
 
+	// Don't allow player to end up outside of the playfeild
+	ClampToPlayfield(&a)
+
 	return a
+}
+
+//
+// If walking or jumping of the playfield edges then set actor mode to FALLING
+// and make sure the actor stays inside the playfield
+//
+func ClampToPlayfield(a *Actor) {
+	if a.X <= 0 && (a.Dir == LEFT || a.Dir == JUMPLEFT) {
+		a.X = 0
+		a.Dir = FALLING
+		a.DirRequest = STOPPED
+	}
+
+	if a.X >= 78 && (a.Dir == RIGHT || a.Dir == JUMPRIGHT) {
+		a.X = 78
+		a.Dir = FALLING
+		a.DirRequest = STOPPED
+	}
+
 }
