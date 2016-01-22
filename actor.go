@@ -138,11 +138,12 @@ loopAgain: // If just started falling we need to retest all conditions
 	// If falling then continue doing that until not in free space anymore,
 	// then continue the previous direction (if any)
 	if a.Dir == FALLING {
-		if m.Field[a.Y+1][a.X] == ' ' {
+		if OnSolid(a, m) {
+			a.Dir = a.DirRequest
+		} else {
 			a.Y++
-			return a
 		}
-		a.Dir = a.DirRequest
+		return a
 	}
 
 	// Climb up until ladder is no more
@@ -206,4 +207,16 @@ func ClampToPlayfield(a *Actor) {
 		a.DirRequest = STOPPED
 	}
 
+}
+
+//
+// Return true if standing on something solid I.E Floor, Disaperaring floor
+// or a Ladder
+//
+func OnSolid(a Actor, m MapData) bool {
+	switch m.Field[a.Y+1][a.X] {
+	case '=', '-', 'H':
+		return true
+	}
+	return false
 }
