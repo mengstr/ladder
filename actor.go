@@ -77,7 +77,7 @@ var dirs = map[Action]struct {
 //
 //
 //
-func MoveActor(a Actor, m MapData) Actor {
+func MoveActor(a *Actor, m MapData) {
 
 loopAgain: // If just started falling we need to retest all conditions
 
@@ -131,7 +131,7 @@ loopAgain: // If just started falling we need to retest all conditions
 	}
 
 	// Don't allow player to end up outside of the playfield
-	ClampToPlayfield(&a)
+	ClampToPlayfield(a)
 
 	// If at a ladder and want to go up
 	if (a.DirRequest == UP && m.Field[a.Y][a.X] == 'H') ||
@@ -143,12 +143,12 @@ loopAgain: // If just started falling we need to retest all conditions
 	// If falling then continue doing that until not in free space anymore,
 	// then continue the previous direction (if any)
 	if a.Dir == FALLING {
-		if OnSolid(a, m) {
+		if OnSolid(*a, m) {
 			a.Dir = a.DirRequest
 		} else {
 			a.Y++
 		}
-		return a
+		return
 	}
 
 	// Climb up until ladder is no more
@@ -190,9 +190,9 @@ loopAgain: // If just started falling we need to retest all conditions
 	}
 
 	// Don't allow player to end up outside of the playfeild
-	ClampToPlayfield(&a)
+	ClampToPlayfield(a)
 
-	return a
+	return
 }
 
 //

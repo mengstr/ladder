@@ -63,8 +63,7 @@ gameloop:
 		case <-ticker.C:
 			lad.Ch = '@'
 			termbox.SetCell(lad.X, lad.Y, rune(m.Field[lad.Y][lad.X]), termbox.ColorDefault, termbox.ColorDefault)
-			newLad := MoveActor(lad, m)
-			lad = newLad
+			MoveActor(&lad, m)
 			termbox.SetCell(lad.X, lad.Y, rune(lad.Ch), termbox.ColorDefault, termbox.ColorDefault)
 			termbox.Flush()
 		case ev := <-keystroke:
