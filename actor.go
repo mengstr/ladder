@@ -112,20 +112,25 @@ loopAgain: // If just started falling we need to retest all conditions
 	// Do the jumping
 	if a.Dir == JUMPUP || a.Dir == JUMPLEFT || a.Dir == JUMPRIGHT {
 		jd := jumpPaths[a.Dir][a.JumpStep]
-		if m.Field[a.Y+dirs[jd].y][a.X+dirs[jd].x] == ' ' {
+		switch m.Field[a.Y+dirs[jd].y][a.X+dirs[jd].x] {
+		case ' ': // Just jumping in air
 			a.X += dirs[jd].x
 			a.Y += dirs[jd].y
 			a.JumpStep++
 			if a.JumpStep >= len(jumpPaths[a.Dir]) {
 				a.Dir = a.DirRequest
 			}
-		} else {
-			// If bumped into something try falling
+		case 'H': // Jumping onto a ladder
+			a.Y += dirs[jd].y
+			a.X += dirs[jd].x
+			a.Dir = STOPPED
+			a.DirRequest = STOPPED
+		default: // If bumped into something try falling
 			a.Dir = FALLING
 		}
 	}
 
-	// Don't allow player to end up outside of the playfeild
+	// Don't allow player to end up outside of the playfield
 	ClampToPlayfield(&a)
 
 	// If at a ladder and want to go up
