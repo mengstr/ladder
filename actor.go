@@ -2,9 +2,17 @@ package main
 
 //go:generate stringer -type=Action
 
+type Kind int
+
+const (
+	NONE Kind = iota
+	LAD
+	STONE
+)
+
 // The Actor struct holds info about an actor I.E the Lad or a Rock
 type Actor struct {
-	Type       int
+	Type       Kind
 	Y          int
 	X          int
 	Ch         byte
@@ -224,4 +232,16 @@ func OnSolid(a Actor, m MapData) bool {
 		return true
 	}
 	return false
+}
+
+//
+//
+//
+func InitActor(a *Actor, t Kind, xy XY) {
+	a.Type = t
+	a.X = xy.x
+	a.Y = xy.y
+	a.Ch = 'X'
+	a.Dir = STOPPED
+	a.DirRequest = STOPPED
 }

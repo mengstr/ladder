@@ -13,18 +13,7 @@ const screenMinHeight = 22
 
 var m MapData
 var lad Actor
-var dispensers []Actor
-
-// var dirdata = map[int]struct {
-// 	x, y int
-// 	c    byte
-// }{
-// 	STOPPED: {0, 0, 'g'},
-// 	LEFT:    {-1, 0, 'q'},
-// 	RIGHT:   {1, 0, 'p'},
-// 	UP:      {0, -1},
-// 	DOWN:    {0, 1},
-// }
+var dispensers []XY
 
 func main() {
 	// Initialize termbox library and check if the screen dimensions are big enough
@@ -41,7 +30,11 @@ func main() {
 	termbox.SetOutputMode(termbox.OutputNormal)
 
 	// Load a level ahs show it
-	m, lad, dispensers, _ = LoadMap(0)
+	var ladXY XY
+	m, ladXY, dispensers, _ = LoadMap(0)
+	InitActor(&lad, LAD, ladXY)
+
+	// Show the initial map on screen
 	drawMap()
 	termbox.Flush()
 
@@ -61,10 +54,12 @@ gameloop:
 		drawStatusline()
 		select {
 		case <-ticker.C:
+			// Move the lad accordiing to players whishes
 			lad.Ch = '@'
 			termbox.SetCell(lad.X, lad.Y, rune(m.Field[lad.Y][lad.X]), termbox.ColorDefault, termbox.ColorDefault)
 			MoveActor(&lad, m)
 			termbox.SetCell(lad.X, lad.Y, rune(lad.Ch), termbox.ColorDefault, termbox.ColorDefault)
+
 			termbox.Flush()
 		case ev := <-keystroke:
 			if ev.Type == termbox.EventKey {

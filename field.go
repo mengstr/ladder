@@ -204,13 +204,20 @@ type MapData struct {
   Bonustime     int
 }
 
+type XY struct {
+  x, y int
+}
+
 //
+// This loads one of the playfields/maps into memory and also
+// returns the coordinates of the initial Lad, and an array of
+// coordinates where the dispensers are.
 //
-func LoadMap(n int) (MapData, Actor, []Actor, error) {
+func LoadMap(n int) (MapData, XY, []XY, error) {
   var x, y int
   var m MapData
-  var lad Actor
-  var dispensers []Actor
+  var lad XY
+  var dispensers []XY
 
   if n > len(levels) {
     return m, lad, dispensers, errors.New("Level out of range")
@@ -228,10 +235,11 @@ func LoadMap(n int) (MapData, Actor, []Actor, error) {
       switch levels[n].layout[y][x] {
       case 'p':
         // The lad will be put there by the rendered, so no need to have it on the map
-        lad = Actor{Type: 1, Y: y, X: x, Ch: 'g', Dir: STOPPED, DirRequest: STOPPED}
+        lad.x = x
+        lad.y = y
       case 'V':
         m.Field[y][x] = 'V'
-        dispensers = append(dispensers, Actor{Type: 2, Y: y, X: x})
+        dispensers = append(dispensers, XY{x: x, y: y})
       case '.': // TODO - handle the rubber balls
         m.Field[y][x] = '.'
       default:
