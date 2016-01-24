@@ -4,9 +4,9 @@ package main
 
 import "fmt"
 
-const _Action_name = "STOPPEDUPUPRIGHTRIGHTDOWNRIGHTDOWNDOWNLEFTLEFTUPLEFTFALLINGJUMPJUMPRIGHTJUMPUPJUMPLEFT"
+const _Action_name = "STOPPEDPENDINGUPUPRIGHTRIGHTDOWNRIGHTDOWNDOWNLEFTLEFTUPLEFTFALLINGJUMPJUMPRIGHTJUMPUPJUMPLEFT"
 
-var _Action_index = [...]uint8{0, 7, 9, 16, 21, 30, 34, 42, 46, 52, 59, 63, 72, 78, 86}
+var _Action_index = [...]uint8{0, 7, 14, 16, 23, 28, 37, 41, 49, 53, 59, 66, 70, 79, 85, 93}
 
 func (i Action) String() string {
 	if i < 0 || i >= Action(len(_Action_index)-1) {

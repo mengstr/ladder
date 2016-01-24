@@ -1,5 +1,7 @@
 package main
 
+import "math/rand"
+
 //go:generate stringer -type=Action
 
 type Kind int
@@ -26,6 +28,7 @@ type Action int
 // The Action constans define what the Actor currently is, or is requested to be, doing
 const (
 	STOPPED Action = iota
+	PENDING
 	UP
 	UPRIGHT
 	RIGHT
@@ -89,14 +92,60 @@ func MoveActor(a *Actor, m MapData) {
 
 loopAgain: // If just started falling we need to retest all conditions
 
+	// A STONE can only be LEFT/RIGHT/DOWN/FALLING or PENDING
+
+	if a.Type == STONE {
+		if a.DirRequest == PENDING {
+			return
+		}
+
+		// If stopped select a random direction
+		if a.Dir == STOPPED {
+			switch rand.Intn(2) {
+			case 0:
+				a.DirRequest = LEFT
+			case 1:
+				a.DirRequest = RIGHT
+			}
+		}
+		// Just reverse direction if at the playfield edge
+		if a.X == 0 || a.X == 78 {
+			ReverseDirection(a)
+		}
+		// Start to fall if not on solid ground
+		if a.Dir != FALLING && !OnSolid(*a, m) {
+			a.DirRequest = FALLING
+		}
+		// If we just got on a ladder then randomize direction
+		if OnLadder(*a, m) && (a.Dir == LEFT || a.Dir == RIGHT) {
+			switch rand.Intn(4) {
+			case 0:
+				a.DirRequest = LEFT
+			case 1:
+				a.DirRequest = RIGHT
+			case 2, 3:
+				a.DirRequest = DOWN
+			}
+		}
+		// If on an Eater kill the stone
+		if OnEater(*a, m) {
+			InitActor(a, STONE, dispensers[0])
+		}
+	}
+
 	// If stopped or going left or going right and requst to do something else, then try to do it
 	if (a.Dir == STOPPED && a.DirRequest == LEFT) ||
 		(a.Dir == STOPPED && a.DirRequest == RIGHT) ||
+		(a.Dir == STOPPED && a.DirRequest == FALLING) ||
+		(a.Dir == STOPPED && a.DirRequest == UP) ||
+		(a.Dir == STOPPED && a.DirRequest == DOWN) ||
 		(a.Dir == LEFT && a.DirRequest == RIGHT) ||
-		(a.Dir == RIGHT && a.DirRequest == LEFT) {
+		(a.Dir == RIGHT && a.DirRequest == LEFT) ||
+		(a.Dir == LEFT && a.DirRequest == LEFT) ||
+		(a.Dir == RIGHT && a.DirRequest == RIGHT) ||
+		(a.Dir == PENDING && a.DirRequest != PENDING) {
 		a.Dir = a.DirRequest
 		a.DirRequest = STOPPED
-
 	}
 
 	// Handle starting of jumps
@@ -235,6 +284,28 @@ func OnSolid(a Actor, m MapData) bool {
 }
 
 //
+// Return true if standing on a Ladder
+//
+func OnLadder(a Actor, m MapData) bool {
+	switch m.Field[a.Y+1][a.X] {
+	case 'H':
+		return true
+	}
+	return false
+}
+
+//
+// Return true if standing on a Ladder
+//
+func OnEater(a Actor, m MapData) bool {
+	switch m.Field[a.Y][a.X] {
+	case '*':
+		return true
+	}
+	return false
+}
+
+//
 //
 //
 func InitActor(a *Actor, t Kind, xy XY) {
@@ -242,6 +313,24 @@ func InitActor(a *Actor, t Kind, xy XY) {
 	a.X = xy.x
 	a.Y = xy.y
 	a.Ch = 'X'
-	a.Dir = STOPPED
-	a.DirRequest = STOPPED
+	switch t {
+	case LAD:
+		a.DirRequest = STOPPED
+		a.Dir = STOPPED
+	case STONE:
+		a.Dir = PENDING
+		a.DirRequest = PENDING
+	}
+}
+
+//
+//
+//
+func ReverseDirection(a *Actor) {
+	switch a.Dir {
+	case LEFT:
+		a.Dir = RIGHT
+	case RIGHT:
+		a.Dir = LEFT
+	}
 }
