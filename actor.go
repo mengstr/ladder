@@ -4,8 +4,10 @@ import "math/rand"
 
 //go:generate stringer -type=Action
 
+// Kind is the type of actor (LAD/STONE)
 type Kind int
 
+// These consts are for the Kind type
 const (
 	NONE Kind = iota
 	LAD
@@ -23,6 +25,7 @@ type Actor struct {
 	JumpStep   int
 }
 
+// Action is what the actor is currently doing
 type Action int
 
 // The Action constans define what the Actor currently is, or is requested to be, doing
@@ -86,7 +89,7 @@ var dirs = map[Action]struct {
 //
 
 //
-//
+// MoveActor handles the movements of an Actor
 //
 func MoveActor(a *Actor, m MapData) {
 
@@ -253,8 +256,8 @@ loopAgain: // If just started falling we need to retest all conditions
 }
 
 //
-// If walking or jumping of the playfield edges then set actor mode to FALLING
-// and make sure the actor stays inside the playfield
+// ClampToPlayfield makes sure that if the actor tries to walk or jump of the playfield edges
+// the actor stays inside the playfield and sart falling//
 //
 func ClampToPlayfield(a *Actor) {
 	if a.X <= 0 && (a.Dir == LEFT || a.Dir == JUMPLEFT) {
@@ -272,7 +275,7 @@ func ClampToPlayfield(a *Actor) {
 }
 
 //
-// Return true if standing on something solid I.E Floor, Disaperaring floor
+// OnSolid returns true if standing on something solid I.E Floor, Disaperaring floor
 // or a Ladder
 //
 func OnSolid(a Actor, m MapData) bool {
@@ -284,7 +287,7 @@ func OnSolid(a Actor, m MapData) bool {
 }
 
 //
-// Return true if standing on a Ladder
+// OnLadder returns true when the actor is on a Ladder
 //
 func OnLadder(a Actor, m MapData) bool {
 	switch m.Field[a.Y+1][a.X] {
@@ -295,7 +298,7 @@ func OnLadder(a Actor, m MapData) bool {
 }
 
 //
-// Return true if standing on a Ladder
+// OnEater returns true when the actor is standing on a Eater
 //
 func OnEater(a Actor, m MapData) bool {
 	switch m.Field[a.Y][a.X] {
@@ -306,7 +309,8 @@ func OnEater(a Actor, m MapData) bool {
 }
 
 //
-//
+// InitActor set the fields of an Actor type to reasonable
+// initial values
 //
 func InitActor(a *Actor, t Kind, xy XY) {
 	a.Type = t
@@ -324,7 +328,8 @@ func InitActor(a *Actor, t Kind, xy XY) {
 }
 
 //
-//
+// ReverseDirection makes the actor to go in the opposite direction,
+// it only works when the actor is moving left or right
 //
 func ReverseDirection(a *Actor) {
 	switch a.Dir {

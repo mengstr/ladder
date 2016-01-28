@@ -196,6 +196,7 @@ var levels = []struct {
   },
 }
 
+// The MapData hold all info about a map
 type MapData struct {
   Field         [20][79]byte
   LadsRemaining int
@@ -204,12 +205,13 @@ type MapData struct {
   Bonustime     int
 }
 
+// XY is holding the X and Y cordinates of an object
 type XY struct {
   x, y int
 }
 
 //
-// This loads one of the playfields/maps into memory and also
+// LoadMap loads one of the playfields/maps into memory and also
 // returns the coordinates of the initial Lad, and an array of
 // coordinates where the dispensers are.
 //

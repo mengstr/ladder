@@ -15,6 +15,7 @@ import (
 const screenMinWidth = 80
 const screenMinHeight = 22
 
+// Trace and friends are for the logging package
 var (
 	Trace   *log.Logger
 	Info    *log.Logger
@@ -210,7 +211,8 @@ func printXY(x int, y int, fgcolor termbox.Attribute, bgcolor termbox.Attribute,
 }
 
 //
-//
+// InitLogger sets up a logger that outputs loging messages to the defined
+// outputs
 //
 func InitLogger(
 	traceHandle io.Writer,
